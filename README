@@ -1,0 +1,9 @@
+Links the systemd user manager with the system manager.
+
+Currently, it does the following:
+
+1. Inhibits system shutdown till the user manager terminates. This gives
+services that depend on system services a chance to shutdown.
+
+2. Pulls in the user manager's sleep target before sleeping (inhibiting sleep
+until it loads).
