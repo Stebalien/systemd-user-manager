@@ -1,0 +1,11 @@
+[Unit]
+Description=User Manager
+DefaultDependencies=false
+After=sockets.target dbus.target
+Before=shutdown.target
+
+[Service]
+ExecStart={PREFIX}/bin/systemd-user-manager
+
+[Install]
+WantedBy=default.target
