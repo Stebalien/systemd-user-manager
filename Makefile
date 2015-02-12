@@ -20,5 +20,5 @@ $(BINARY).service: $(BINARY).service.in
 	@sed -e 's#{PREFIX}#$(PREFIX)#g' $< > $@
 
 clean:
-	@rm -f $(BINARY) $(wildcard *.c)
+	@rm -f $(BINARY) $(wildcard *.c) $(BINARY).service
 
