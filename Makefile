@@ -14,7 +14,7 @@ VALAC = valac
 all: $(BINARY) $(BINARY).service
 
 install: all
-	install -Dm755 $(BINARY) $(DESTDIR)/$(PREFIX)/bin/$(BINARY)
+	install -Dm755 $(BINARY) $(DESTDIR)/$(PREFIX)/lib/systemd/$(BINARY)
 	install -Dm644 $(BINARY).service $(DESTDIR)/$(PREFIX)/lib/systemd/user/$(BINARY).service
 
 $(BINARY):
