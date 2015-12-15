@@ -21,7 +21,7 @@ namespace Systemd {
         public abstract void subscribe() throws IOError;
         public abstract void unsubscribe() throws IOError;
         public abstract void exit() throws IOError;
-        public abstract signal void job_removed(uint32 id, ObjectPath removed_job, ObjectPath unit, string result);
+        public abstract signal void job_removed(uint32 id, ObjectPath removed_job, string unit, string result);
     }
 
     class Manager : Object {
