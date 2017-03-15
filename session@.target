@@ -1,0 +1,4 @@
+[Unit]
+Description=Session %i
+Wants=session-mkdir@%i.service
+After=session-mkdir@%i.service

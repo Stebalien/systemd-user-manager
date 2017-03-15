@@ -1,0 +1,7 @@
+[Unit]
+Description=Make session directory for %i
+RefuseManualStart=true
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/mkdir -m700 -p %t/session/%i/

@@ -16,6 +16,9 @@ all: $(BINARY) $(BINARY).service
 install: all
 	install -Dm755 $(BINARY) $(DESTDIR)/$(PREFIX)/lib/systemd/$(BINARY)
 	install -Dm644 $(BINARY).service $(DESTDIR)/$(PREFIX)/lib/systemd/user/$(BINARY).service
+	install -Dm644 sleep.target $(DESTDIR)/$(PREFIX)/lib/systemd/user/sleep.target
+	install -Dm644 session@.target $(DESTDIR)/$(PREFIX)/lib/systemd/user/session@.target
+	install -Dm644 session-mkdir@.service $(DESTDIR)/$(PREFIX)/lib/systemd/user/session-mkdir@.service
 
 $(BINARY):
 	@$(VALAC) $(VARGS) $(PKGS) $(VALAFLAGS) -o $(BINARY) $(SRC)
