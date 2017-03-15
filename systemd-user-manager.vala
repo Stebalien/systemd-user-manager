@@ -13,6 +13,18 @@ namespace Logind {
         public abstract signal void prepare_for_shutdown(bool active);
         public abstract UnixInputStream inhibit(string what, string who, string why, string mode) throws IOError;
     }
+
+	struct SessionTuple {
+		public string id;
+		public ObjectPath path;
+	}
+
+    [DBus (name = "org.freedesktop.login1.User")]
+	interface User : DBusProxy {
+		public abstract SessionTuple[] sessions {
+			owned get;
+		}
+	}
 }
 
 namespace Systemd {
@@ -77,6 +89,13 @@ namespace Systemd {
         public void exit() throws IOError {
             dbus_interface.exit();
         }
+        public void start_session(string id) throws IOError {
+            start_unit(@"session@$id.target");
+        }
+
+        public void stop_session(string id) throws IOError {
+            stop_unit(@"session@$id.target");
+        }
     }
 }
 
@@ -123,9 +142,22 @@ void main(string[] args) {
         var inhibitor = new Inhibitor(login_manager);
         inhibitor.aquire();
 
+        Logind.User user = Bus.get_proxy_sync(
+            BusType.SYSTEM,
+            "org.freedesktop.login1",
+            "/org/freedesktop/login1/user/self");
+
+        foreach (Logind.SessionTuple session in user.sessions) {
+            try {
+                systemd_manager.start_session(session.id);
+            } catch (IOError e) {
+                stderr.printf("Failed to start session target: %s\n", e.message);
+            }
+        }
+
         login_manager.session_new.connect((id, path) => {
             try {
-              systemd_manager.start_unit(@"session@$id.target");
+                systemd_manager.start_session(id);
             } catch (IOError e) {
                 stderr.printf("Failed to start session target: %s\n", e.message);
             }
@@ -133,7 +165,7 @@ void main(string[] args) {
 
         login_manager.session_removed.connect((id, path) => {
             try {
-                systemd_manager.start_unit(@"logout@$id.target");
+                systemd_manager.stop_session(id);
             } catch (IOError e) {
                 stderr.printf("Failed to start logout target: %s\n", e.message);
             }
