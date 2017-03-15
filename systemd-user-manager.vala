@@ -7,6 +7,8 @@ using Gee;
 namespace Logind {
     [DBus (name = "org.freedesktop.login1.Manager")]
     interface Manager : DBusProxy {
+        public abstract signal void session_new(string id, ObjectPath path);
+        public abstract signal void session_removed(string id, ObjectPath path);
         public abstract signal void prepare_for_sleep(bool active);
         public abstract signal void prepare_for_shutdown(bool active);
         public abstract UnixInputStream inhibit(string what, string who, string why, string mode) throws IOError;
@@ -120,6 +122,22 @@ void main(string[] args) {
 
         var inhibitor = new Inhibitor(login_manager);
         inhibitor.aquire();
+
+        login_manager.session_new.connect((id, path) => {
+            try {
+              systemd_manager.start_unit(@"session@$id.target");
+            } catch (IOError e) {
+                stderr.printf("Failed to start session target: %s\n", e.message);
+            }
+        });
+
+        login_manager.session_removed.connect((id, path) => {
+            try {
+                systemd_manager.start_unit(@"logout@$id.target");
+            } catch (IOError e) {
+                stderr.printf("Failed to start logout target: %s\n", e.message);
+            }
+        });
 
 
         login_manager.prepare_for_sleep.connect((active) => {
