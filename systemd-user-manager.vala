@@ -142,19 +142,6 @@ void main(string[] args) {
         var inhibitor = new Inhibitor(login_manager);
         inhibitor.aquire();
 
-        Logind.User user = Bus.get_proxy_sync(
-            BusType.SYSTEM,
-            "org.freedesktop.login1",
-            "/org/freedesktop/login1/user/self");
-
-        foreach (Logind.SessionTuple session in user.sessions) {
-            try {
-                systemd_manager.start_session(session.id);
-            } catch (IOError e) {
-                stderr.printf("Failed to start session target: %s\n", e.message);
-            }
-        }
-
         login_manager.session_new.connect((id, path) => {
             try {
                 systemd_manager.start_session(id);
@@ -209,6 +196,19 @@ void main(string[] args) {
                 });
             } // Else, wtf?
         });
+
+        Logind.User user = Bus.get_proxy_sync(
+            BusType.SYSTEM,
+            "org.freedesktop.login1",
+            "/org/freedesktop/login1/user/self");
+
+        foreach (Logind.SessionTuple session in user.sessions) {
+            try {
+                systemd_manager.start_session(session.id);
+            } catch (IOError e) {
+                stderr.printf("Failed to start session target: %s\n", e.message);
+            }
+        }
 
         loop.run();
     } catch (IOError e) {
