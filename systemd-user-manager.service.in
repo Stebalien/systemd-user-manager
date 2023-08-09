@@ -5,6 +5,7 @@ After=sockets.target dbus.target
 Before=shutdown.target
 
 [Service]
+Slice=background.slice
 ExecStart={PREFIX}/lib/systemd/systemd-user-manager
 
 [Install]
